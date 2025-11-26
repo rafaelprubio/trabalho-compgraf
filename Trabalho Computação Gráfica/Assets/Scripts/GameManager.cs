@@ -6,9 +6,12 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
-    [Header("Score")]
-    public int score = 0;
+    [Header("Score & Objectives")]
+    public static int globalScore = 0; 
+
     public TextMeshProUGUI scoreText;
+    public TextMeshProUGUI objectiveText;
+    public string startMessage = "Purifique todos os monstros infectados!"; 
 
     [Header("UI Panels")]
     public GameObject gameOverPanel;
@@ -17,33 +20,46 @@ public class GameManager : MonoBehaviour
 
     void Awake()
     {
-        if (Instance == null)
-            Instance = this;
-        else
-            Destroy(gameObject);
+        if (Instance != null && Instance != this)
+        {
+            Destroy(Instance.gameObject);
+        }
+        Instance = this;
     }
 
     void Start()
     {
+        if (SceneManager.GetActiveScene().name == "GameLevel1")
+        {
+            globalScore = 0; 
+        }
+
         UpdateScoreUI();
+        UpdateObjective(startMessage); 
         Time.timeScale = 1f;
     }
 
     public void AddScore(int points)
     {
-        score += points;
+        globalScore += points;
         UpdateScoreUI();
     }
 
     void UpdateScoreUI()
     {
         if (scoreText != null)
-            scoreText.text = "Score: " + score;
+            scoreText.text = "Pontos: " + globalScore;
+    }
+
+    public void UpdateObjective(string newText)
+    {
+        if (objectiveText != null)
+            objectiveText.text = newText;
     }
 
     public void GameOver()
     {
-        gameOverPanel.SetActive(true);
+        if(gameOverPanel) gameOverPanel.SetActive(true);
         Time.timeScale = 0f;
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
@@ -51,8 +67,8 @@ public class GameManager : MonoBehaviour
 
     public void Victory()
     {
-        victoryPanel.SetActive(true);
-        finalScoreText.text = "Final Score: " + score;
+        if(victoryPanel) victoryPanel.SetActive(true);
+        if(finalScoreText) finalScoreText.text = "Pontuacao Final: " + globalScore;
         Time.timeScale = 0f;
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;

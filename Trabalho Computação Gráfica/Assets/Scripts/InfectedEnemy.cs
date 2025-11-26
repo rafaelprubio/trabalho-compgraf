@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.AI;
 
 public class InfectedEnemy : MonoBehaviour
 {
@@ -8,12 +9,11 @@ public class InfectedEnemy : MonoBehaviour
     public bool isFrozen = false;
 
     [Header("Materials")]
-    public Material infectedMaterial; // Red
-    public Material curedMaterial;    // Blue
+    public Material infectedMaterial;
+    public Material curedMaterial;
 
     [Header("Movement")]
-    public float moveSpeed = 2f;
-    public Transform target; // For Room 2: the civilian
+    public Transform target; 
 
     [Header("Audio")]
     public AudioClip curedSound;
@@ -21,23 +21,38 @@ public class InfectedEnemy : MonoBehaviour
 
     private Renderer rend;
     private AudioSource audioSource;
-    private Rigidbody rb;
+    private NavMeshAgent agent;
+    private Color originalInfectedColor; 
 
     void Start()
     {
         rend = GetComponent<Renderer>();
         audioSource = GetComponent<AudioSource>();
-        rb = GetComponent<Rigidbody>();
-        rend.material = infectedMaterial;
+        agent = GetComponent<NavMeshAgent>();
+        if (rend != null && infectedMaterial != null)
+        {
+            rend.material = infectedMaterial;
+            originalInfectedColor = rend.material.color;
+        }
+        if (target == null && GameObject.FindGameObjectWithTag("Player"))
+        {
+            target = GameObject.FindGameObjectWithTag("Player").transform;
+        }
     }
 
     void Update()
     {
-        if (!isFrozen && isInfected && target != null)
+        if (isInfected && !isFrozen && target != null)
         {
-            // Move towards target (civilian in Room 2)
-            Vector3 direction = (target.position - transform.position).normalized;
-            transform.position += direction * moveSpeed * Time.deltaTime;
+            if (agent != null)
+            {
+                if (agent.isStopped) agent.isStopped = false;
+                agent.SetDestination(target.position);
+            }
+        }
+        else
+        {
+            if (agent != null) agent.isStopped = true;
         }
     }
 
@@ -46,9 +61,14 @@ public class InfectedEnemy : MonoBehaviour
         if (!isInfected) return;
 
         isInfected = false;
-        rend.material = curedMaterial;
-        audioSource.PlayOneShot(curedSound);
-        GameManager.Instance.AddScore(10);
+        if(agent != null) agent.isStopped = true; 
+        if(rend != null) rend.material = curedMaterial;
+        
+        if(audioSource && curedSound) audioSource.PlayOneShot(curedSound);
+        
+        if (GameManager.Instance != null) 
+            GameManager.Instance.AddScore(10);
+
         StartCoroutine(FadeAndDestroy());
     }
 
@@ -61,28 +81,36 @@ public class InfectedEnemy : MonoBehaviour
     IEnumerator FreezeCoroutine(float duration)
     {
         isFrozen = true;
-        audioSource.PlayOneShot(freezeSound);
-        
-        // feedback visual
-        rend.material.color = Color.cyan;
+        if(agent != null) 
+        {
+            agent.isStopped = true;
+            agent.ResetPath();
+        }
+
+        if(audioSource && freezeSound) audioSource.PlayOneShot(freezeSound);
+        if(rend != null) rend.material.color = Color.cyan;
+
         yield return new WaitForSeconds(duration);
         isFrozen = false;
-        if (isInfected)
-            rend.material.color = Color.red;
+        if (isInfected && rend != null)
+        {
+            rend.material.color = originalInfectedColor; 
+        }
     }
 
     IEnumerator FadeAndDestroy()
     {
         float elapsed = 0f;
         float fadeDuration = 2f;
+        Color startColor = rend.material.color; 
 
         while (elapsed < fadeDuration)
         {
             elapsed += Time.deltaTime;
             float alpha = Mathf.Lerp(1f, 0f, elapsed / fadeDuration);
-            Color color = rend.material.color;
-            color.a = alpha;
-            rend.material.color = color;
+            Color newColor = new Color(startColor.r, startColor.g, startColor.b, alpha);
+            rend.material.color = newColor;
+            
             yield return null;
         }
 
@@ -91,9 +119,12 @@ public class InfectedEnemy : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Civilian") && isInfected)
+        if ((other.CompareTag("Civilian") || other.CompareTag("Player")) && isInfected)
         {
-            GameManager.Instance.GameOver();
+            if(GameManager.Instance != null) 
+            {
+                GameManager.Instance.GameOver();
+            }
         }
     }
 }

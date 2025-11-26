@@ -2,34 +2,56 @@ using UnityEngine;
 
 public class RoomManager : MonoBehaviour
 {
-    public GameObject door; // porta fechada
-    public GameObject[] enemies; // infectados
+    [Header("Room Settings")]
+    public GameObject door;
+    public GameObject exitTrigger;
     public AudioClip doorOpenSound;
+    
+    private bool levelComplete = false;
+
+    void Start()
+    {
+        if (exitTrigger != null) exitTrigger.SetActive(false);
+    }
 
     void Update()
     {
-        if (AllEnemiesCured())
+        if (!levelComplete)
         {
-            UnlockDoor();
+            if (AllEnemiesCleared())
+            {
+                CompleteRoom();
+            }
         }
     }
 
-    bool AllEnemiesCured()
+    bool AllEnemiesCleared()
     {
-        foreach (GameObject enemyObj in enemies)
+        InfectedEnemy[] allEnemies = FindObjectsOfType<InfectedEnemy>();
+        if (allEnemies.Length == 0) return true;
+        foreach (InfectedEnemy enemy in allEnemies)
         {
-            if (enemyObj != null) // nao foi destruido
+            if (enemy.isInfected)
+            {
                 return false;
+            }
         }
         return true;
     }
 
-    void UnlockDoor()
+    void CompleteRoom()
     {
-        if (door != null && door.activeSelf)
+        levelComplete = true;
+        if (GameManager.Instance != null)
+            GameManager.Instance.UpdateObjective("Setor limpo! Va para a porta.");
+        if (door != null)
         {
             door.SetActive(false);
-            AudioSource.PlayClipAtPoint(doorOpenSound, door.transform.position);
+            if(doorOpenSound) AudioSource.PlayClipAtPoint(doorOpenSound, door.transform.position);
+        }
+        if (exitTrigger != null)
+        {
+            exitTrigger.SetActive(true);
         }
     }
 }
