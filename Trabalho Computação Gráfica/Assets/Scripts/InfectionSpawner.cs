@@ -7,9 +7,11 @@ public class InfectionSpawner : MonoBehaviour
     public float spawnInterval = 5f;
     public Transform spawnPoint;
 
+    [Header("Boss Connection")]
+    public InfectionHeart bossScript; 
+
     [Header("Health")]
     public int health = 5;
-    public Material damagedMaterial;
 
     private float nextSpawnTime;
     private Renderer rend;
@@ -32,23 +34,27 @@ public class InfectionSpawner : MonoBehaviour
 
     void SpawnInfected()
     {
-        Instantiate(infectedPrefab, spawnPoint.position, Quaternion.identity);
+        if (infectedPrefab != null && spawnPoint != null)
+        {
+            Instantiate(infectedPrefab, spawnPoint.position, Quaternion.identity);
+        }
+        if (bossScript != null)
+        {
+            bossScript.PlaySummonAnimation();
+        }
     }
 
     public void TakeDamage(int damage)
     {
         health -= damage;
-        // feedback visual
-        rend.material.color = Color.Lerp(Color.red, Color.white, (float)health / 5f);
+        
+        if (rend != null)
+            rend.material.color = Color.Lerp(Color.red, Color.white, (float)health / 5f);
+            
         if (health <= 0)
         {
-            DestroySpawner();
+            isDestroyed = true;
+            Destroy(gameObject);
         }
-    }
-
-    void DestroySpawner()
-    {
-        isDestroyed = true;
-        Destroy(gameObject);
     }
 }

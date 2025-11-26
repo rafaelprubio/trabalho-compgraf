@@ -62,8 +62,9 @@ public class InfectedEnemy : MonoBehaviour
 
         isInfected = false;
         if(agent != null) agent.isStopped = true; 
+        Collider col = GetComponent<Collider>();
+        if (col != null) col.enabled = false;
         if(rend != null) rend.material = curedMaterial;
-        
         if(audioSource && curedSound) audioSource.PlayOneShot(curedSound);
         
         if (GameManager.Instance != null) 

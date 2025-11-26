@@ -3,9 +3,20 @@ using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour
 {
+    [Header("Audio")]
+    public AudioClip menuMusic;
+
+    void Start()
+    {
+        if (BackgroundMusic.Instance != null && menuMusic != null)
+        {
+            BackgroundMusic.Instance.ChangeMusic(menuMusic);
+        }
+    }
+
     public void PlayGame()
     {
-        SceneManager.LoadScene("GameLevel1"); // mudar para o nome da cena correto depois
+        SceneManager.LoadScene("GameLevel1"); 
     }
 
     public void ShowInstructions()

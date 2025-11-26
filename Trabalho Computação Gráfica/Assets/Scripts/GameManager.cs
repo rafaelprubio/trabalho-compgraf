@@ -17,6 +17,8 @@ public class GameManager : MonoBehaviour
     public GameObject gameOverPanel;
     public GameObject victoryPanel;
     public TextMeshProUGUI finalScoreText;
+    [Header("Audio")]
+    public AudioClip normalMusic;
 
     void Awake()
     {
@@ -31,7 +33,11 @@ public class GameManager : MonoBehaviour
     {
         if (SceneManager.GetActiveScene().name == "GameLevel1")
         {
-            globalScore = 0; 
+            globalScore = 0;
+            if (BackgroundMusic.Instance != null && normalMusic != null)
+            {
+                BackgroundMusic.Instance.ChangeMusic(normalMusic);
+            } 
         }
 
         UpdateScoreUI();
