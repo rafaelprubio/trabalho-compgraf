@@ -6,12 +6,14 @@ public class RoomManager : MonoBehaviour
     public GameObject door;
     public GameObject exitTrigger;
     public AudioClip doorOpenSound;
+    public GameObject questArrow;
     
     private bool levelComplete = false;
 
     void Start()
     {
         if (exitTrigger != null) exitTrigger.SetActive(false);
+        if (questArrow != null) questArrow.SetActive(false);
     }
 
     void Update()
@@ -53,5 +55,6 @@ public class RoomManager : MonoBehaviour
         {
             exitTrigger.SetActive(true);
         }
+        if (questArrow != null) questArrow.SetActive(true);
     }
 }

@@ -5,7 +5,7 @@ public class MainMenu : MonoBehaviour
 {
     public void PlayGame()
     {
-        SceneManager.LoadScene("GameLevel"); // mudar para o nome da cena correto depois
+        SceneManager.LoadScene("GameLevel1"); // mudar para o nome da cena correto depois
     }
 
     public void ShowInstructions()

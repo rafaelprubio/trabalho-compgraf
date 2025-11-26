@@ -85,4 +85,10 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 1f;
         SceneManager.LoadScene("MainMenu");
     }
+    public void RestartEntireGame()
+    {
+        globalScore = 0;
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("GameLevel1");
+    }
 }
