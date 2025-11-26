@@ -31,6 +31,8 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
         if (SceneManager.GetActiveScene().name == "GameLevel1")
         {
             globalScore = 0;

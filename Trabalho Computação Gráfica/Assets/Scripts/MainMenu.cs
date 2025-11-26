@@ -8,6 +8,8 @@ public class MainMenu : MonoBehaviour
 
     void Start()
     {
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
         if (BackgroundMusic.Instance != null && menuMusic != null)
         {
             BackgroundMusic.Instance.ChangeMusic(menuMusic);
